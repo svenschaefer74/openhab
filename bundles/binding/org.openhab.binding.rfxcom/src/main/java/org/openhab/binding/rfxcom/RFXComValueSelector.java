@@ -29,6 +29,7 @@ public enum RFXComValueSelector {
 
 	RAW_DATA ("RawData", StringItem.class),
 	SHUTTER ("Shutter", RollershutterItem.class),
+	BLINDS ("Blinds", RollershutterItem.class),
 	COMMAND ("Command", SwitchItem.class),
 	MOOD ("Mood", NumberItem.class),
 	SIGNAL_LEVEL ("SignalLevel", NumberItem.class),
@@ -36,7 +37,6 @@ public enum RFXComValueSelector {
 	TEMPERATURE ("Temperature", NumberItem.class),
 	HUMIDITY ("Humidity", NumberItem.class),
 	HUMIDITY_STATUS ("HumidityStatus", StringItem.class),
-	CHIME_SOUND ("ChimeSound", NumberItem.class),
 	BATTERY_LEVEL ("BatteryLevel", NumberItem.class),
 	PRESSURE("Pressure", NumberItem.class),
 	FORECAST("Forecast", NumberItem.class),
@@ -44,17 +44,12 @@ public enum RFXComValueSelector {
 	RAIN_TOTAL("RainTotal", NumberItem.class),
 	WIND_DIRECTION("WindDirection", NumberItem.class),
 	WIND_SPEED("WindSpeed", NumberItem.class),
-	WIND_AVSPEED("WindAvSpeed", NumberItem.class),
-	UV("UV", NumberItem.class),
 	GUST("Gust", NumberItem.class),
 	CHILL_FACTOR("ChillFactor", NumberItem.class),
 	INSTANT_POWER("InstantPower", NumberItem.class),
 	TOTAL_USAGE("TotalUsage", NumberItem.class),
 	INSTANT_AMPS("InstantAmps", NumberItem.class),
 	TOTAL_AMP_HOURS("TotalAmpHours", NumberItem.class),
-	CHANNEL1_AMPS("Channel1Amps", NumberItem.class),
-	CHANNEL2_AMPS("Channel2Amps", NumberItem.class),
-	CHANNEL3_AMPS("Channel3Amps", NumberItem.class),
 	STATUS("Status", StringItem.class),
 	MOTION("Motion", SwitchItem.class),
 	CONTACT("Contact", ContactItem.class),
@@ -92,8 +87,8 @@ public enum RFXComValueSelector {
 	 */
 	public static boolean validateBinding(String valueSelector,
 			Class<? extends Item> itemClass) throws IllegalArgumentException,
-			InvalidClassException {
-
+			InvalidClassException {		
+		
 		for (RFXComValueSelector c : RFXComValueSelector.values()) {
 			if (c.text.equals(valueSelector)) {
 
