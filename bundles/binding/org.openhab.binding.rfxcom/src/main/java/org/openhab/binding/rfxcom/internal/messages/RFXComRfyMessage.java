@@ -27,6 +27,9 @@ import org.openhab.core.types.State;
 import org.openhab.core.types.Type;
 import org.openhab.core.types.UnDefType;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * RFXCOM data class for RFY (Somfy RTS) message.
  * 
@@ -35,12 +38,11 @@ import org.openhab.core.types.UnDefType;
  */
 public class RFXComRfyMessage extends RFXComBaseMessage {
 
+	private static final Logger logger = LoggerFactory
+			.getLogger(RFXComRfyMessage.class);
+
 	public enum Commands {
-		STOP(0x00), 
-		OPEN(0x01), 
-		CLOSE(0x03), 
-		UP_2SEC(0x11), 
-		DOWN_2SEC(0x12);
+		STOP(0x00), OPEN(0x01), CLOSE(0x03), UP_2SEC(0x11), DOWN_2SEC(0x12);
 
 		private final int command;
 
@@ -79,7 +81,7 @@ public class RFXComRfyMessage extends RFXComBaseMessage {
 			.asList(RFXComValueSelector.RAW_DATA,
 					RFXComValueSelector.SIGNAL_LEVEL,
 					RFXComValueSelector.COMMAND);
-	
+
 	public SubType subType = SubType.RFY;
 	/**
 	 * valid numbers 0-4; 0 == all units
@@ -168,6 +170,11 @@ public class RFXComRfyMessage extends RFXComBaseMessage {
 			throws RFXComException {
 		org.openhab.core.types.State state = UnDefType.UNDEF;
 
+		logger.debug("executing convertToState({})", valueSelector.toString());
+
+		logger.debug("valueSelector.getItemClass()=="
+				+ valueSelector.getItemClass().toString());
+
 		if (valueSelector.getItemClass() == NumberItem.class) {
 			if (valueSelector == RFXComValueSelector.SIGNAL_LEVEL) {
 				state = new DecimalType(signalLevel);
@@ -177,14 +184,24 @@ public class RFXComRfyMessage extends RFXComBaseMessage {
 			}
 
 		} else if (valueSelector.getItemClass() == RollershutterItem.class) {
-			if (valueSelector == RFXComValueSelector.COMMAND) {
 
+			if (valueSelector == RFXComValueSelector.COMMAND) {
+				logger.debug(RFXComValueSelector.COMMAND.toString());
 				switch (command) {
 				case CLOSE:
+					logger.debug("Blinds CLOSED");
 					state = OpenClosedType.CLOSED;
 					break;
-
+				case DOWN_2SEC:
+					logger.debug("Blinds CLOSED");
+					state = OpenClosedType.CLOSED;
+					break;
 				case OPEN:
+					logger.debug("Blinds OPEN");
+					state = OpenClosedType.OPEN;
+					break;
+				case UP_2SEC:
+					logger.debug("Blinds OPEN");
 					state = OpenClosedType.OPEN;
 					break;
 
@@ -200,7 +217,8 @@ public class RFXComRfyMessage extends RFXComBaseMessage {
 		} else if (valueSelector.getItemClass() == StringItem.class) {
 
 			if (valueSelector == RFXComValueSelector.RAW_DATA) {
-				state = new StringType( DatatypeConverter.printHexBinary(rawMessage));
+				state = new StringType(
+						DatatypeConverter.printHexBinary(rawMessage));
 			} else {
 				throw new NumberFormatException("Can't convert "
 						+ valueSelector + " to StringItem");
@@ -217,6 +235,9 @@ public class RFXComRfyMessage extends RFXComBaseMessage {
 	public void convertFromState(RFXComValueSelector valueSelector, String id,
 			Object subType, Type type, byte seqNumber) throws RFXComException {
 
+		logger.debug("executing convertFromState({}, {}, {}, {}, {})",
+				valueSelector.toString(), id, subType, type, seqNumber);
+
 		this.subType = (RFXComRfyMessage.SubType) subType;
 		this.seqNbr = seqNumber;
 		String[] ids = id.split("\\.");
@@ -225,32 +246,57 @@ public class RFXComRfyMessage extends RFXComBaseMessage {
 		this.id3 = (byte) Short.parseShort(ids[2]);
 		this.unitCode = Byte.parseByte(ids[3]);
 
+		logger.debug("valueSelector=" + valueSelector.toString());
+
 		switch (valueSelector) {
 		case SHUTTER:
+			logger.debug("ValueSelector SHUTTER executed.");
 			if (type instanceof OpenClosedType) {
-				this.command = (type == OpenClosedType.CLOSED ? Commands.CLOSE : Commands.OPEN);
+				this.command = (type == OpenClosedType.CLOSED ? Commands.CLOSE
+						: Commands.OPEN);
 			} else if (type instanceof UpDownType) {
-				this.command = (type == UpDownType.UP ? Commands.OPEN : Commands.CLOSE);
+				this.command = (type == UpDownType.UP ? Commands.OPEN
+						: Commands.CLOSE);
 			} else if (type instanceof StopMoveType) {
 				this.command = RFXComRfyMessage.Commands.STOP;
 
 			} else {
-				throw new NumberFormatException("Can't convert " + type + " to Command");
+				throw new NumberFormatException("Can't convert " + type
+						+ " to Command");
+			}
+			break;
+		case BLINDS:
+			logger.debug("ValueSelector BLINDS executed.");
+			if (type instanceof OpenClosedType) {
+				this.command = (type == OpenClosedType.CLOSED ? Commands.DOWN_2SEC
+						: Commands.UP_2SEC);
+			} else if (type instanceof UpDownType) {
+				this.command = (type == UpDownType.UP ? Commands.UP_2SEC
+						: Commands.DOWN_2SEC);
+			} else if (type instanceof StopMoveType) {
+				this.command = RFXComRfyMessage.Commands.STOP;
+
+			} else {
+				throw new NumberFormatException("Can't convert " + type
+						+ " to Command");
 			}
 			break;
 		default:
-			throw new RFXComException("Can't convert " + type + " to " + valueSelector);
+			throw new RFXComException("Can't convert " + type + " to "
+					+ valueSelector);
 		}
+		logger.debug(this.command.toString());
 	}
 
 	@Override
 	public Object convertSubType(String subType) throws RFXComException {
+		logger.debug("executing convertToSubType({})", subType);
 		for (SubType s : SubType.values()) {
 			if (s.toString().equals(subType)) {
 				return s;
 			}
 		}
-		
+
 		throw new RFXComException("Unknown sub type " + subType);
 	}
 
