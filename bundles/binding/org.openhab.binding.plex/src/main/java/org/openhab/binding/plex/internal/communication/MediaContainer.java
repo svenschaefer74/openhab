@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2015, openHAB.org and others.
+ * Copyright (c) 2010-2016 by the respective copyright holders.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -19,66 +19,78 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * This object is fetched from the various Plex status URL's.
- * 
+ *
  * @author Jeroen Idserda
  * @since 1.7.0
  */
-@XmlRootElement(name="MediaContainer")
+@XmlRootElement(name = "MediaContainer")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class MediaContainer {
-	
-	@XmlElement(name="Server")
-	private List<Server> servers;
-	
-	@XmlElement(name="Video")
-	private List<Video> videos = new ArrayList<Video>();
 
-	@XmlElement(name="Track")
-	private List<Track> tracks = new ArrayList<Track>();
-	
-	@XmlAttribute
-	private String size;
+    @XmlElement(name = "Server")
+    private List<Server> servers = new ArrayList<Server>();
 
-	public List<Server> getServers() {
-		return servers;
-	}
+    @XmlElement(name = "Device")
+    private List<Device> devices = new ArrayList<Device>();
 
-	public void setServers(List<Server> servers) {
-		this.servers = servers;
-	}
-	
-	public List<Video> getVideos() {
-		return videos;
-	}
+    @XmlElement(name = "Video")
+    private List<Video> videos = new ArrayList<Video>();
 
-	public void setVideos(List<Video> videos) {
-		this.videos = videos;
-	}
+    @XmlElement(name = "Track")
+    private List<Track> tracks = new ArrayList<Track>();
 
-	public List<Track> getTracks() {
-		return tracks;
-	}
+    @XmlAttribute
+    private String size;
 
-	public void setTracks(List<Track> tracks) {
-		this.tracks = tracks;
-	}
+    public List<Server> getServers() {
+        return servers;
+    }
 
-	public String getSize() {
-		return size;
-	}
+    public void setServers(List<Server> servers) {
+        this.servers = servers;
+    }
 
-	public void setSize(String size) {
-		this.size = size;
-	}
+    public List<Device> getDevices() {
+        return devices;
+    }
 
-	public Server getServer(String machineId) {
-		if (servers != null) { 
-			for (Server server : servers) {
-				if (server.getMachineIdentifier().equals(machineId))
-					return server;
-			}
-		}
-		
-		return null;
-	}
+    public void setDevices(List<Device> devices) {
+        this.devices = devices;
+    }
+
+    public List<Video> getVideos() {
+        return videos;
+    }
+
+    public void setVideos(List<Video> videos) {
+        this.videos = videos;
+    }
+
+    public List<Track> getTracks() {
+        return tracks;
+    }
+
+    public void setTracks(List<Track> tracks) {
+        this.tracks = tracks;
+    }
+
+    public String getSize() {
+        return size;
+    }
+
+    public void setSize(String size) {
+        this.size = size;
+    }
+
+    public Server getServer(String machineId) {
+        if (servers != null) {
+            for (Server server : servers) {
+                if (server.getMachineIdentifier().equals(machineId)) {
+                    return server;
+                }
+            }
+        }
+
+        return null;
+    }
 }
